@@ -9,17 +9,9 @@ import { parseReceiptImage, processChatCommand } from './services/gemini';
 import { MessageSquare, PieChart, Menu, Scissors } from 'lucide-react';
 
 // Custom Brand Logo
+// Custom Brand Logo
 const Logo = () => (
-  <div className="relative w-8 h-8 flex items-center justify-center bg-indigo-600 rounded-lg shadow-sm overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-indigo-700"></div>
-    <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/30 border-r border-dashed border-white/50"></div>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-white relative z-10">
-       <path d="M16 3h5v5" />
-       <path d="M8 3H3v5" />
-       <path d="M12 22v-8.3" />
-       <path d="m9 18 3 3 3-3" />
-    </svg>
-  </div>
+  <img src="/icon.png" alt="BayarTengah" className="w-8 h-8 rounded-lg shadow-sm" />
 );
 
 export default function App() {
@@ -29,10 +21,10 @@ export default function App() {
   const [people, setPeople] = useState<string[]>([]); // List of all participants
   const [billName, setBillName] = useState<string>(''); // Name of the bill
   const [currentBillId, setCurrentBillId] = useState<string | null>(null); // Track active bill ID
-  
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isProcessingChat, setIsProcessingChat] = useState(false);
-  
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: '1', role: 'model', text: 'Upload a receipt to get started! You can assign items directly on the list or ask me for help.' }
   ]);
@@ -41,10 +33,10 @@ export default function App() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  
+
   const [savedBills, setSavedBills] = useState<SavedBill[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
-  
+
   // State for Group Summary Mode
   // If this is set, SummaryView shows the group aggregation instead of the current bill
   const [groupSummaryBills, setGroupSummaryBills] = useState<SavedBill[] | null>(null);
@@ -56,7 +48,7 @@ export default function App() {
       if (storedHistory) {
         setSavedBills(JSON.parse(storedHistory));
       }
-      
+
       const storedGroups = localStorage.getItem('bill_splitter_groups');
       if (storedGroups) {
         setGroups(JSON.parse(storedGroups));
@@ -92,18 +84,18 @@ export default function App() {
   const migrateAssignments = (old: Assignments | LegacyAssignments): Assignments => {
     const newAssignments: Assignments = {};
     Object.keys(old).forEach(key => {
-        const idx = parseInt(key);
-        const val = old[idx];
-        if (Array.isArray(val)) {
-            // It's legacy string[]
-            newAssignments[idx] = {};
-            val.forEach((person: string) => {
-                newAssignments[idx][person] = 1;
-            });
-        } else {
-            // It's already correct
-            newAssignments[idx] = val as Record<string, number>;
-        }
+      const idx = parseInt(key);
+      const val = old[idx];
+      if (Array.isArray(val)) {
+        // It's legacy string[]
+        newAssignments[idx] = {};
+        val.forEach((person: string) => {
+          newAssignments[idx][person] = 1;
+        });
+      } else {
+        // It's already correct
+        newAssignments[idx] = val as Record<string, number>;
+      }
     });
     return newAssignments;
   };
@@ -113,10 +105,10 @@ export default function App() {
     if (!receiptData) return null;
     const total = ((receiptData.items.reduce((acc, i) => acc + i.price * i.quantity, 0)) + receiptData.tax + receiptData.tip).toFixed(2);
     const dateStr = new Date().toLocaleDateString();
-    
+
     // Use user provided name or generate default
     const finalName = billName.trim() || `Bill ${dateStr} - ${receiptData.currency || '$'}${total}`;
-    
+
     // Use existing ID if we are editing, otherwise generate new one
     const id = currentBillId || Date.now().toString();
 
@@ -144,7 +136,7 @@ export default function App() {
     setSavedBills(prev => {
       const existingIndex = prev.findIndex(b => b.id === newBill.id);
       let updated;
-      
+
       if (existingIndex !== -1) {
         // Update existing bill
         updated = [...prev];
@@ -153,14 +145,14 @@ export default function App() {
         // Add new bill
         updated = [newBill, ...prev];
       }
-      
+
       saveHistoryToStorage(updated);
       return updated;
     });
 
     if (showToast) {
-       const id = Date.now().toString();
-       setMessages(prev => [...prev, { id, role: 'model', text: 'Bill saved to history!' }]);
+      const id = Date.now().toString();
+      setMessages(prev => [...prev, { id, role: 'model', text: 'Bill saved to history!' }]);
     }
   }, [createCurrentBillObject, currentBillId]);
 
@@ -181,11 +173,11 @@ export default function App() {
     setReceiptData(bill.receiptData);
     setBillName(bill.name);
     setAssignments(migrateAssignments(bill.assignments));
-    setPeople(bill.people || []); 
+    setPeople(bill.people || []);
     setImageUrl(bill.imageUrl);
     setMessages(bill.messages || []);
     setCurrentBillId(bill.id); // Set the active ID so updates save to this bill
-    
+
     // Reset group summary mode
     setGroupSummaryBills(null);
 
@@ -201,7 +193,7 @@ export default function App() {
       saveHistoryToStorage(updated);
       return updated;
     });
-    
+
     // Also remove from groups
     setGroups(prev => {
       const updated = prev.map(g => ({
@@ -221,7 +213,7 @@ export default function App() {
   const handleNewBill = useCallback(() => {
     // We can rely on auto-save, but doing an explicit save before clear ensures no data loss if debounce hasn't fired
     if (receiptData) {
-      handleSaveBill(false); 
+      handleSaveBill(false);
     }
 
     setReceiptData(null);
@@ -231,7 +223,7 @@ export default function App() {
     setImageUrl(null);
     setMessages([{ id: Date.now().toString(), role: 'model', text: 'Ready for a new receipt! Upload one to begin.' }]);
     setCurrentBillId(null); // Clear ID for new bill
-    
+
     setGroupSummaryBills(null);
     setIsSummaryOpen(false);
     setIsChatOpen(false);
@@ -247,22 +239,22 @@ export default function App() {
     reader.onload = async (e) => {
       const base64Data = e.target?.result as string;
       setImageUrl(base64Data);
-      
+
       setIsAnalyzing(true);
       setReceiptData(null);
       setAssignments({});
       setPeople([]);
-      setBillName(`Receipt ${new Date().toLocaleDateString()}`); 
+      setBillName(`Receipt ${new Date().toLocaleDateString()}`);
       setCurrentBillId(null); // New image means new bill
-      
+
       setGroupSummaryBills(null);
       setIsSummaryOpen(false);
-      
+
       try {
         const pureBase64 = base64Data.split(',')[1];
         const mimeType = file.type;
         const data = await parseReceiptImage(pureBase64, mimeType);
-        
+
         setReceiptData(data);
         setMessages([
           { id: Date.now().toString(), role: 'model', text: `I found ${data.items.length} items. You can tap items to assign them to people, or ask me for help!` }
@@ -271,7 +263,7 @@ export default function App() {
       } catch (error) {
         console.error(error);
         setMessages([
-            { id: Date.now().toString(), role: 'model', text: "Sorry, I couldn't read the receipt properly. Please try again with a clearer image.", isError: true }
+          { id: Date.now().toString(), role: 'model', text: "Sorry, I couldn't read the receipt properly. Please try again with a clearer image.", isError: true }
         ]);
       } finally {
         setIsAnalyzing(false);
@@ -308,7 +300,7 @@ export default function App() {
       const updated = prev.map(g => {
         // Remove from all groups first to avoid duplicates
         const newIds = g.billIds.filter(id => id !== billId);
-        
+
         if (g.id === groupId) {
           return { ...g, billIds: [...newIds, billId] };
         }
@@ -359,7 +351,7 @@ export default function App() {
           const next = { ...prev };
           response.updates.forEach(update => {
             const newAssignmentForIndex: Record<string, number> = {};
-            
+
             update.assignedTo.forEach(assignment => {
               if (!people.includes(assignment.person) && !newPeopleFound.includes(assignment.person)) {
                 newPeopleFound.push(assignment.person);
@@ -368,14 +360,14 @@ export default function App() {
             });
 
             if (Object.keys(newAssignmentForIndex).length === 0) {
-               delete next[update.itemIndex];
+              delete next[update.itemIndex];
             } else {
-               next[update.itemIndex] = newAssignmentForIndex;
+              next[update.itemIndex] = newAssignmentForIndex;
             }
           });
           return next;
         });
-        
+
         if (newPeopleFound.length > 0) {
           setPeople(prev => [...Array.from(new Set([...prev, ...newPeopleFound]))]);
         }
@@ -404,7 +396,7 @@ export default function App() {
     setAssignments(prev => {
       const next = { ...prev };
       const itemAssignments = { ...(next[itemIndex] || {}) };
-      
+
       const currentQty = itemAssignments[person] || 0;
       const newQty = Math.max(0, currentQty + change);
 
@@ -425,16 +417,16 @@ export default function App() {
 
   const handleToggleAssignment = useCallback((itemIndex: number, person: string) => {
     setAssignments(prev => {
-       const next = { ...prev };
-       const itemAssignments = { ...(next[itemIndex] || {}) };
-       
-       if (itemAssignments[person]) {
-         delete itemAssignments[person];
-       } else {
-         itemAssignments[person] = 1;
-       }
+      const next = { ...prev };
+      const itemAssignments = { ...(next[itemIndex] || {}) };
 
-       if (Object.keys(itemAssignments).length === 0) {
+      if (itemAssignments[person]) {
+        delete itemAssignments[person];
+      } else {
+        itemAssignments[person] = 1;
+      }
+
+      if (Object.keys(itemAssignments).length === 0) {
         delete next[itemIndex];
       } else {
         next[itemIndex] = itemAssignments;
@@ -446,7 +438,7 @@ export default function App() {
   // --- Bulk Actions ---
   const handleBulkAssign = useCallback((indices: number[], assignees: string[]) => {
     if (assignees.length === 0) return;
-    
+
     // Add any new people to the master list
     setPeople(prev => {
       const newPeople = assignees.filter(p => !prev.includes(p));
@@ -459,10 +451,10 @@ export default function App() {
       indices.forEach(idx => {
         const itemAssignments = { ...(next[idx] || {}) };
         assignees.forEach(person => {
-           // Default to 1 if not exists. If exists, we keep current qty to not overwrite manual edits.
-           if (!itemAssignments[person]) {
-             itemAssignments[person] = 1;
-           }
+          // Default to 1 if not exists. If exists, we keep current qty to not overwrite manual edits.
+          if (!itemAssignments[person]) {
+            itemAssignments[person] = 1;
+          }
         });
         next[idx] = itemAssignments;
       });
@@ -484,14 +476,14 @@ export default function App() {
     setAssignments(prev => {
       const next: Assignments = {};
       const oldIndices = Object.keys(prev).map(Number).sort((a, b) => a - b);
-      
+
       oldIndices.forEach(oldIdx => {
-          if (!indicesSet.has(oldIdx)) {
-              // Calculate how many deleted items were before this index to shift it correctly
-              const deletedBefore = indices.filter(deletedIdx => deletedIdx < oldIdx).length;
-              const newIdx = oldIdx - deletedBefore;
-              next[newIdx] = prev[oldIdx];
-          }
+        if (!indicesSet.has(oldIdx)) {
+          // Calculate how many deleted items were before this index to shift it correctly
+          const deletedBefore = indices.filter(deletedIdx => deletedIdx < oldIdx).length;
+          const newIdx = oldIdx - deletedBefore;
+          next[newIdx] = prev[oldIdx];
+        }
       });
       return next;
     });
@@ -540,10 +532,10 @@ export default function App() {
   }, []);
 
   const handleUpdateTaxTip = useCallback((tax: number, tip: number) => {
-     setReceiptData(prev => {
-       if (!prev) return null;
-       return { ...prev, tax, tip };
-     });
+    setReceiptData(prev => {
+      if (!prev) return null;
+      return { ...prev, tax, tip };
+    });
   }, []);
 
   const handleUpdateCurrency = useCallback((currency: string) => {
@@ -556,59 +548,59 @@ export default function App() {
   // Determine what to pass to SummaryView
   // If groupSummaryBills is set, we are in group mode.
   // Else we check for current receiptData.
-  const summaryProps = groupSummaryBills 
+  const summaryProps = groupSummaryBills
     ? { bills: groupSummaryBills }
     : (receiptData ? { bills: [{ receiptData, assignments, name: billName || 'Current Bill' } as SavedBill] } : { bills: [] });
 
   return (
     <div className="h-full bg-slate-100 flex flex-col relative overflow-hidden">
-      
+
       {/* Top Bar */}
       <div className="bg-white border-b border-slate-200 p-4 flex items-center justify-between shrink-0 shadow-sm z-30">
         <div className="flex items-center gap-3">
-          <button 
-             onClick={() => setIsHistoryOpen(true)}
-             className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
-             title="History"
+          <button
+            onClick={() => setIsHistoryOpen(true)}
+            className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
+            title="History"
           >
-             <Menu className="w-6 h-6" />
+            <Menu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-2">
             <Logo />
             <h1 className="text-xl font-bold text-slate-800 tracking-tight">BayarTengah</h1>
           </div>
         </div>
-        
-        <div className="flex gap-2">
-           {receiptData && (
-             <>
-                <button
-                  onClick={() => setIsChatOpen(!isChatOpen)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium border ${isChatOpen ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-                >
-                  <MessageSquare className="w-5 h-5" />
-                  <span className="hidden sm:inline">AI Chat</span>
-                </button>
 
-                <button
-                  onClick={() => {
-                    setGroupSummaryBills(null); // Switch back to current bill summary
-                    setIsSummaryOpen(!isSummaryOpen);
-                  }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium border ${isSummaryOpen ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-                >
-                  <PieChart className="w-5 h-5" />
-                  <span className="hidden sm:inline">Summary</span>
-                </button>
-             </>
-           )}
+        <div className="flex gap-2">
+          {receiptData && (
+            <>
+              <button
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium border ${isChatOpen ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              >
+                <MessageSquare className="w-5 h-5" />
+                <span className="hidden sm:inline">AI Chat</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setGroupSummaryBills(null); // Switch back to current bill summary
+                  setIsSummaryOpen(!isSummaryOpen);
+                }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors font-medium border ${isSummaryOpen ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              >
+                <PieChart className="w-5 h-5" />
+                <span className="hidden sm:inline">Summary</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden relative">
         <div className="max-w-3xl mx-auto h-full shadow-xl bg-white flex flex-col">
-           <ReceiptView 
+          <ReceiptView
             receiptData={receiptData}
             assignments={assignments}
             people={people}
@@ -633,7 +625,7 @@ export default function App() {
       </div>
 
       {/* Overlays */}
-      <HistorySidebar 
+      <HistorySidebar
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         savedBills={savedBills}
@@ -647,17 +639,17 @@ export default function App() {
       />
 
       <div className={`fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-2xl z-40 transform transition-transform duration-300 ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <ChatView 
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            isProcessing={isProcessingChat}
-            receiptLoaded={!!receiptData}
-            onClose={() => setIsChatOpen(false)}
+        <ChatView
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          isProcessing={isProcessingChat}
+          receiptLoaded={!!receiptData}
+          onClose={() => setIsChatOpen(false)}
         />
       </div>
 
       <div className={`fixed inset-y-0 right-0 w-full sm:w-[400px] bg-slate-900 shadow-2xl z-40 transform transition-transform duration-300 ${isSummaryOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <SummaryView 
+        <SummaryView
           bills={summaryProps.bills}
           onSave={groupSummaryBills ? undefined : () => handleSaveBill(true)}
           onClose={() => setIsSummaryOpen(false)}
@@ -666,8 +658,8 @@ export default function App() {
       </div>
 
       {(isChatOpen || isSummaryOpen) && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-30 sm:hidden" 
+        <div
+          className="fixed inset-0 bg-black/20 z-30 sm:hidden"
           onClick={() => { setIsChatOpen(false); setIsSummaryOpen(false); }}
         />
       )}
