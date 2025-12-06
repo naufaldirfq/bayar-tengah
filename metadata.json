@@ -1,0 +1,5 @@
+{
+  "name": "BayarTengah",
+  "description": "A split-screen bill splitting app. Upload a receipt to parse items using Gemini, then use a smart chat interface to naturally assign costs to people and see real-time totals.",
+  "requestFramePermissions": []
+}
