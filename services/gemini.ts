@@ -5,8 +5,8 @@ import { ReceiptData, AssignmentUpdate, Assignments, ReceiptItem, ChatResponse }
 // Initialize Gemini Client
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const RECEIPT_MODEL = 'gemini-3-pro-preview';
-const CHAT_MODEL = 'gemini-3-pro-preview';
+const RECEIPT_MODEL = 'gemini-2.0-flash';
+const CHAT_MODEL = 'gemini-2.0-flash';
 
 /**
  * Parses a receipt image to extract items, tax, and tip.
@@ -130,9 +130,9 @@ export const processChatCommand = async (
                 type: Type.OBJECT,
                 properties: {
                   itemIndex: { type: Type.INTEGER },
-                  assignedTo: { 
+                  assignedTo: {
                     type: Type.ARRAY,
-                    items: { 
+                    items: {
                       type: Type.OBJECT,
                       properties: {
                         person: { type: Type.STRING },
